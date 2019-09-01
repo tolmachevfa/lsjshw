@@ -36,7 +36,7 @@ function map(array, fn) {
  */
 function reduce(array, fn, initial) {
     let result, i;
-    
+
     i = initial ? 0 : 1;
     result = initial ? initial : array[0];
 
@@ -69,25 +69,15 @@ function upperProps(obj) {
  */
 function slice(array, from, to) {
     let result = [];
-    let i, length;
+    let i = from < 0 ? array.length + from : from;
+    let length = to < 0 ? array.length + to : to;
 
     if ((!from && from !== 0) || from < -array.length) {
         i = 0;
-    } else if (from > array.length) {
-        i = array.length;
-    } else if (from < 0) {
-        i = array.length + from;
-    } else {
-        i = from;
     }
-    if (!to && to !== 0) {
+
+    if ((!to && to !== 0) || to > array.length) {
         length = array.length;
-    } else if (to > array.length) {
-        length = array.length;
-    } else if (to < 0) {
-        length = array.length + to;
-    } else {
-        length = to;
     }
 
     for (i; i < length; i++) {
@@ -113,11 +103,4 @@ function createProxy(obj) {
     });
 }
 
-export {
-    forEach,
-    map,
-    reduce,
-    upperProps,
-    slice,
-    createProxy
-};
+export { forEach, map, reduce, upperProps, slice, createProxy };
