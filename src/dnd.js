@@ -27,6 +27,21 @@ const homeworkContainer = document.querySelector('#homework-container');
    homeworkContainer.appendChild(newDiv);
  */
 function createDiv() {
+    let newDiv = document.createElement('div');
+    let x = Math.floor(Math.random() * 256);
+    let y = Math.floor(Math.random() * 256);
+    let z = Math.floor(Math.random() * 256);
+    let bgColor = 'rgb(' + x + ',' + y + ',' + z + ')';
+
+    newDiv.className = 'draggable-div';
+    newDiv.style.top = '200px';
+    newDiv.style.left = '200px';
+    newDiv.style.width = '100px';
+    newDiv.style.height = '100px';
+    newDiv.style.backgroundColor = bgColor;
+    newDiv.draggable = true;
+
+    return newDiv;
 }
 
 /*
@@ -38,6 +53,27 @@ function createDiv() {
    addListeners(newDiv);
  */
 function addListeners(target) {
+    target.onmousedown = function(e) {
+        target.style.position = 'absolute';
+        moveAt(e);
+        document.body.appendChild(target);
+
+        target.style.zIndex = 1000;
+
+        function moveAt(e) {
+            target.style.left = e.pageX - target.offsetWidth / 2 + 'px';
+            target.style.top = e.pageY - target.offsetHeight / 2 + 'px';
+        }
+
+        document.onmousemove = function(e) {
+            moveAt(e);
+        };
+
+        target.onmouseup = function() {
+            document.onmousemove = null;
+            target.onmouseup = null;
+        };
+    };
 }
 
 let addDivButton = homeworkContainer.querySelector('#addDiv');
@@ -54,6 +90,4 @@ addDivButton.addEventListener('click', function() {
     // или использовать HTML5 D&D - https://www.html5rocks.com/ru/tutorials/dnd/basics/
 });
 
-export {
-    createDiv
-};
+export { createDiv };
