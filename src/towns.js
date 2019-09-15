@@ -37,6 +37,34 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
+    return new Promise((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json', true);
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status == 200) {
+                let xhrResponseText = xhr.responseText;
+                let cities = JSON.parse(xhrResponseText);
+
+                cities.sort((city1, city2) => {
+                    if (city1.name > city2.name) {
+                        return 1;
+                    } else if (city1.name < city2.name) {
+                        return -1;
+                    }
+
+                    return 0;
+                });
+
+                resolve(cities);
+            } else {
+                reject(new Error(xhr.status + ': ' + xhr.statusText));
+            }
+        });
+
+        xhr.send();
+    });
 }
 
 /*
@@ -51,6 +79,7 @@ function loadTowns() {
    isMatching('Moscow', 'Moscov') // false
  */
 function isMatching(full, chunk) {
+    return full.toLowerCase().indexOf(chunk.toLowerCase()) >= 0;
 }
 
 /* Блок с надписью "Загрузка" */
@@ -62,11 +91,38 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
-filterInput.addEventListener('keyup', function() {
-    // это обработчик нажатия кливиш в текстовом поле
+var citiesArray = [];
+
+loadTowns().then(cities => {
+    loadingBlock.style.display = 'none';
+    filterBlock.style.display = 'block';
+
+    citiesArray = cities;
 });
 
-export {
-    loadTowns,
-    isMatching
-};
+filterInput.addEventListener('keyup', function() {
+    filterResult.innerHTML = null;
+
+    let filterValue = filterInput.value;
+
+    if (!filterValue) {
+        return;
+    }
+
+    let filteredCities = citiesArray.filter(city => {
+        return isMatching(city.name, filterValue);
+    });
+
+    let fragment = document.createDocumentFragment();
+
+    filteredCities.forEach(city => {
+        let cityListItem = document.createElement('li');
+
+        cityListItem.textContent = city.name;
+        fragment.appendChild(cityListItem);
+    });
+
+    filterResult.appendChild(fragment);
+});
+
+export { loadTowns, isMatching };
